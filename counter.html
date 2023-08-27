@@ -16,28 +16,28 @@
             box-shadow: 0 4px 14px 0 rgba(48, 48, 48, 0.4);
             cursor: pointer;
         }
-    
+
         .btn:hover {
             background-color: #1d80f0;
         }
-    
+
         .btn:disabled {
             background-color: #6aa8f0;
         }
-    
+
         .fading {
             animation: fading 0.5s infinite;
         }
-    
+
         @keyframes fading {
             0% {
                 color: #6aa8f0;
             }
-    
+
             50% {
                 color: #fff;
             }
-    
+
             100% {
                 color: #6aa8f0;
             }
@@ -54,24 +54,47 @@
 <body>
     <app-button text="Add" onclick="add()"></app-button>
     <app-button text="Remove" onclick="remove()"></app-button>
+    <app-button text="Move" onclick="move()"></app-button>
+    <iframe></iframe>
 
     <script>
 
         const add = () => {
-            document.createElement('app-counter');
+            const counter = document.createElement('app-counter');
+            counter.setAttribute('until', 5)
+            document.body.append(counter)
         }
 
         const remove = () => {
+            document.querySelector('app-counter').remove();
+        }
+
+        const move = () => {
+            const iframe = document.querySelector('iframe');
+            const doc = document.implementation.createHTMLDocument('new document');
+            
+            const destDocument = iframe.contentDocument;
+            destDocument.replaceChild(doc.documentElement, destDocument.documentElement);
+
+            const counter = document.querySelector('app-counter');
+            try {
+                destDocument.body.appendChild(destDocument.adoptNode(counter));
+            } catch (error) {
+                console.log('Hey! There is no counter in here')
+            }
 
         }
 
         class Button extends HTMLElement {
             constructor() {
                 super();
+            }
+
+            connectedCallback() {
                 this.text = this.getAttribute('text');
                 this.innerHTML = `<button class="btn">${this.text}</button>`;
-
             }
+
             // Which attributes will we observe?
             static get observedAttributes() {
                 return ["inprogress"]
@@ -98,14 +121,29 @@
             constructor() {
                 super();
                 console.log('constructor');
+                this.count = 0;
             }
 
+            // When the element added to DOM
             connectedCallback() {
                 console.log('connected callback');
+                this.innerHTML = this.count;
+                const until = this.getAttribute('until');
+                this.interval = setInterval(() => {
+                    console.log('interval is running', Date.now())
+                    if(this.count < until) {
+                        this.count += 1;
+                        this.innerHTML = this.count;
+                    } else {
+                        clearInterval(this.interval);
+                    }
+                }, 1000);
             }
 
+            // When the element remove from DOM
             disconnectedCallback() {
                 console.log('disconnected callback');
+                clearInterval(this.interval);
             }
 
             attributeChangedCallback(attribute, oldValue, newValue) {

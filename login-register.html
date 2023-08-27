@@ -74,7 +74,8 @@
             constructor() {
                 super();
                 this.text = this.getAttribute('text');
-                // this causes error when creating an instance of this custom element
+                // this causes error when creating an instance of this custom element.
+                // because result must not have any children when construction process
                 this.innerHTML = `<button class="btn">${this.text}</button>`;
 
             }
