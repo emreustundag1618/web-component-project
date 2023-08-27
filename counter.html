@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter Web Component</title>
+    <style>
+        .btn {
+            background-color: #0070f3;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 0.5rem 2rem;
+            font-family: 'Roboto';
+            box-shadow: 0 4px 14px 0 rgba(48, 48, 48, 0.4);
+            cursor: pointer;
+        }
+    
+        .btn:hover {
+            background-color: #1d80f0;
+        }
+    
+        .btn:disabled {
+            background-color: #6aa8f0;
+        }
+    
+        .fading {
+            animation: fading 0.5s infinite;
+        }
+    
+        @keyframes fading {
+            0% {
+                color: #6aa8f0;
+            }
+    
+            50% {
+                color: #fff;
+            }
+    
+            100% {
+                color: #6aa8f0;
+            }
+        }
+        app-button {
+            display: block;
+        }
+        app-counter {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <app-button text="Add" onclick="add()"></app-button>
+    <app-button text="Remove" onclick="remove()"></app-button>
+
+    <script>
+
+        const add = () => {
+            document.createElement('app-counter');
+        }
+
+        const remove = () => {
+
+        }
+
+        class Button extends HTMLElement {
+            constructor() {
+                super();
+                this.text = this.getAttribute('text');
+                this.innerHTML = `<button class="btn">${this.text}</button>`;
+
+            }
+            // Which attributes will we observe?
+            static get observedAttributes() {
+                return ["inprogress"]
+            }
+
+            // When the attribute we were observing changed, call this function
+            attributeChangedCallback(attribute, oldValue, newValue) {
+                const button = this.querySelector('.btn');
+                if (newValue) {
+                    button.textContent = "Loading...";
+                    button.setAttribute("disabled", "true");
+                    button.classList.add("fading");
+                } else {
+                    button.textContent = this.text;
+                    button.removeAttribute("disabled");
+                    button.classList.remove("fading");
+                }
+            }
+        }
+
+        customElements.define('app-button', Button);
+
+        class Counter extends HTMLElement {
+            constructor() {
+                super();
+                console.log('constructor');
+            }
+
+            connectedCallback() {
+                console.log('connected callback');
+            }
+
+            disconnectedCallback() {
+                console.log('disconnected callback');
+            }
+
+            attributeChangedCallback(attribute, oldValue, newValue) {
+                console.log('attribute changed');
+            }
+
+            adoptedCallback() {
+                console.log('adopted');
+            }
+        }
+
+        customElements.define('app-counter', Counter);
+
+    </script>
+</body>
+
+</html>

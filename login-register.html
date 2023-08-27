@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Components</title>
+    <style>
+        .btn {
+            background-color: #0070f3;
+            color: #fff;
+            border: none;
+            border-radius: 7px;
+            padding: 0.5rem 2rem;
+            font-family: 'Roboto';
+            box-shadow: 0 4px 14px 0 rgba(48, 48, 48, 0.4);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #1d80f0;
+        }
+
+        .btn:disabled {
+            background-color: #6aa8f0;
+        }
+
+        .fading {
+            animation: fading 0.5s infinite;
+        }
+
+        @keyframes fading {
+            0% {
+                color: #6aa8f0;
+            }
+
+            50% {
+                color: #fff;
+            }
+
+            100% {
+                color: #6aa8f0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <app-button id="classic-button-login" onclick="login()" text="Login">
+    </app-button>
+    <app-button id="classic-button-register" onclick="register()" text="Register">
+    </app-button>
+
+    <script>
+        const loginButton = document.querySelector('#classic-button-login');
+        const login = () => {
+            loginButton.setAttribute("inprogress", "true")
+            setTimeout(() => {
+                loginButton.removeAttribute('inprogress');
+                console.log('Login response');
+            }, 1000)
+        }
+
+        const registerButton = document.querySelector('#classic-button-register');
+        const register = () => {
+            registerButton.setAttribute("inprogress", "true")
+            setTimeout(() => {
+                registerButton.removeAttribute('inprogress');
+                console.log('Register response');
+            }, 1000)
+        }
+
+        class Button extends HTMLElement {
+            constructor() {
+                super();
+                this.text = this.getAttribute('text');
+                // this causes error when creating an instance of this custom element
+                this.innerHTML = `<button class="btn">${this.text}</button>`;
+
+            }
+            // Which attributes will we observe?
+            static get observedAttributes() {
+                return ["inprogress"]
+            }
+
+            // When the attribute we were observing changed, call this function
+            attributeChangedCallback(attribute, oldValue, newValue) {
+                const button = this.querySelector('.btn');
+                if (newValue) {
+                    button.textContent = "Loading...";
+                    button.setAttribute("disabled", "true");
+                    button.classList.add("fading");
+                } else {
+                    button.textContent = this.text;
+                    button.removeAttribute("disabled");
+                    button.classList.remove("fading");
+                }
+            }
+        }
+
+        customElements.define('app-button', Button);
+
+        
+    </script>
+</body>
+
+</html>
