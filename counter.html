@@ -42,9 +42,16 @@
                 color: #6aa8f0;
             }
         }
+
         app-button {
             display: block;
         }
+
+        app-button[inprogress] {
+            transform: scale(1.1);
+            transform-origin: top left;
+        }
+
         app-counter {
             display: block;
         }
@@ -60,9 +67,16 @@
     <script>
 
         const add = () => {
-            const counter = document.createElement('app-counter');
-            counter.setAttribute('until', 5)
-            document.body.append(counter)
+            const addButton = document.querySelector('app-button');
+            addButton.inprogress = true;
+            // first wait for button progress 1 sec
+            setTimeout(() => {
+                const counter = document.createElement('app-counter');
+                counter.setAttribute('until', 5);
+                document.body.append(counter);
+                addButton.inprogress = false;
+            }, 1000);
+
         }
 
         const remove = () => {
@@ -72,7 +86,7 @@
         const move = () => {
             const iframe = document.querySelector('iframe');
             const doc = document.implementation.createHTMLDocument('new document');
-            
+
             const destDocument = iframe.contentDocument;
             destDocument.replaceChild(doc.documentElement, destDocument.documentElement);
 
@@ -95,7 +109,22 @@
                 this.innerHTML = `<button class="btn">${this.text}</button>`;
             }
 
-            // Which attributes will we observe?
+            // setter of inprogress property. we can change the value of property like this: element.inprogress = true
+            // so that it can be re-render when we set the value outside of the class by assigning a value
+            set inprogress(progress) {
+                if (progress) {
+                    this.setAttribute("inprogress", "true")
+                } else {
+                    this.removeAttribute("inprogress")
+                }
+            }
+
+            get inprogress() {
+                return this.getAttribute('inprogress')
+            }
+
+
+            // Which attributes will we observe? getter and setter had better be defined
             static get observedAttributes() {
                 return ["inprogress"]
             }
@@ -131,7 +160,7 @@
                 const until = this.getAttribute('until');
                 this.interval = setInterval(() => {
                     console.log('interval is running', Date.now())
-                    if(this.count < until) {
+                    if (this.count < until) {
                         this.count += 1;
                         this.innerHTML = this.count;
                     } else {
